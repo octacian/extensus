@@ -1,0 +1,12 @@
+# Node Directories (build tools)
+node_modules
+
+# Editor Directories
+.idea/
+.vscode/
+
+# Sensitive files
+config.json
+
+# Build files
+extensus
