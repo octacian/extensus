@@ -6,7 +6,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/octacian/extensus/core"
+	"github.com/octacian/extensus/core/commands"
 	"github.com/octacian/migrate"
+	"github.com/octacian/shell"
 )
 
 func main() {
@@ -34,6 +36,17 @@ func main() {
 			default:
 				panic(fmt.Sprint("main: got error while migrating to latest:\n", err))
 			}
+		}
+	}
+
+	// if the trailing argument is equal to shell, launch the shell
+	if flag.Arg(0) == "shell" {
+		// Register all commands
+		commands.Register()
+		exitStatus := core.GetShell().Main()
+		// Handle exitStatus
+		if exitStatus == shell.ExitAll {
+			fmt.Printf("Received exit code of %d, exiting...", exitStatus)
 		}
 	}
 }

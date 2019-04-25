@@ -9,6 +9,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/octacian/migrate"
+	"github.com/octacian/shell"
 )
 
 // Configuration stores a copy of the JSON config file within a native struct.
@@ -29,6 +30,9 @@ var oneSqlxDatabase sync.Once
 
 var migrateInstance *migrate.Instance
 var oneMigrateInstance sync.Once
+
+var shellApp *shell.App
+var oneShellApp sync.Once
 
 var programConfig Configuration
 var oneProgramConfig sync.Once
@@ -90,6 +94,15 @@ func GetMigrate() *migrate.Instance {
 	})
 
 	return migrateInstance
+}
+
+// GetShell returns a shell.App for use throughout the program
+func GetShell() *shell.App {
+	oneShellApp.Do(func() {
+		shellApp = shell.NewApp("extensus", true)
+	})
+
+	return shellApp
 }
 
 // GetConfig reads the 'config.json' file at the root of the project and
