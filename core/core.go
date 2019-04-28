@@ -86,7 +86,7 @@ func CloseDB() {
 // GetMigrate returns a migrate.Instance.
 func GetMigrate() *migrate.Instance {
 	oneMigrateInstance.Do(func() {
-		result, err := migrate.NewInstance(GetSQLDB(), "migrations")
+		result, err := migrate.NewInstance(GetSQLDB(), Abs("migrations"))
 		if err != nil {
 			panic(fmt.Sprintf("GetMigrate: got error while creating instance:\n%s", err))
 		}
@@ -110,7 +110,7 @@ func GetShell() *shell.App {
 // are ignored.
 func GetConfig() *Configuration {
 	oneProgramConfig.Do(func() {
-		data, err := ioutil.ReadFile("config.json")
+		data, err := ioutil.ReadFile(Abs("config.json"))
 		if err != nil {
 			panic(fmt.Sprintf("GetConfig: got error while reading 'config.json':\n%s", err))
 		}
