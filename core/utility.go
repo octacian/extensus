@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"time"
 )
 
 // Abs takes a path and, if it is not already absolute, makes it absolute with
@@ -21,3 +22,7 @@ func Abs(path string) string {
 	return filepath.Join(filepath.Dir(file), "..", path)
 }
 
+// Time returns the current time in UTC rounded to the nearest millisecond.
+func Time() time.Time {
+	return time.Now().Round(time.Millisecond).UTC()
+}

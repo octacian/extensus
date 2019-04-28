@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"sync"
 
+	_ "github.com/go-sql-driver/mysql" // Import MySQL database driver
 	"github.com/jmoiron/sqlx"
 	"github.com/octacian/migrate"
 	"github.com/octacian/shell"
@@ -20,6 +21,7 @@ type Configuration struct {
 		Name     string `json:"name"`
 		Password string `json:"password"`
 	}
+	HashCost int `json:"bcryptCost"`
 }
 
 var sqlDatabase *sql.DB
@@ -44,7 +46,7 @@ func GetSQLDB() *sql.DB {
 		user := config.Database.User
 		password := config.Database.Password
 		name := config.Database.Name
-		res, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s", user, password, name))
+		res, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?parseTime=true", user, password, name))
 		if err != nil {
 			panic(fmt.Sprintf("GetSQLDB: got error while opening database:\n%s", err))
 		}
@@ -68,6 +70,7 @@ func CloseSQLDB() {
 func GetDB() *sqlx.DB {
 	oneSqlxDatabase.Do(func() {
 		sqlxDatabase = sqlx.NewDb(GetSQLDB(), "mysql")
+		sqlxDatabase.MapperFunc(func(str string) string { return str })
 	})
 
 	return sqlxDatabase

@@ -1,10 +1,13 @@
 package commands
 
 import (
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/octacian/extensus/core"
 	"github.com/octacian/shell"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Register adds all commands to the shell instance.
@@ -74,6 +77,42 @@ See ${name} help for information on sub-commands.`,
 					return shell.ExitCmd
 				},
 			},
+		},
+	})
+
+	app.AddCommand(shell.Command{
+		Name:     "bench-cost",
+		Synopsis: "benchmarks how long it takes to generate hashes",
+		Usage: `${name} ${shortFlags}:
+
+Benchmark password hash generation with a range of bcrypt cost values. Aim for
+a cost that takes around 241 milliseconds per password.
+
+${flags}`,
+		SetFlags: func(ctx *shell.Context) {
+			flags := ctx.FlagSet()
+
+			ctx.Set("flagStart", flags.Uint("start", uint(bcrypt.MinCost), fmt.Sprintf("Starting cost to test. "+
+				"Cannot be greater than end. Cannot be less than %d.", bcrypt.MinCost)))
+			ctx.Set("flagEnd", flags.Uint("end", uint(bcrypt.MaxCost), fmt.Sprintf("Ending cost to test. "+
+				"Cannot be less than start. Cannot be greater than %d.", bcrypt.MaxCost)))
+			ctx.Set("flagTest", flags.String("test", "!test?9@_*", "Plaintext password to test."))
+		},
+		Main: func(ctx *shell.Context) shell.ExitStatus {
+			for cost := *ctx.MustGet("flagStart").(*uint); cost <= *ctx.MustGet("flagEnd").(*uint); cost++ {
+				ctx.App().Printf("Cost factor: %d\t\t...", cost)
+
+				start := time.Now()
+				_, err := bcrypt.GenerateFromPassword([]byte(*ctx.MustGet("flagTest").(*string)), int(cost))
+				if err != nil {
+					ctx.App().Printf("Got error while generating hash for cost of %d:\n%s\n", cost, err)
+				}
+				end := time.Now()
+
+				ctx.App().Printf("\rCost factor: %d\t\t%s\n", cost, end.Sub(start))
+			}
+
+			return shell.ExitCmd
 		},
 	})
 }

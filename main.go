@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/octacian/extensus/core"
 	"github.com/octacian/extensus/core/commands"
 	"github.com/octacian/migrate"
