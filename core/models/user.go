@@ -93,6 +93,21 @@ func GetUser(emailOrID interface{}) (*User, error) {
 	return user, nil
 }
 
+// AuthenticateUser takes an email and a plaintext password and returns the
+// matching user. If no matching user exists, an ErrNoEntry is returned.
+func AuthenticateUser(email, password string) (*User, error) {
+	user, err := GetUser(email)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := user.Authenticate(password); err != nil {
+		return nil, &ErrNoEntry{Type: "user", Identifier: email}
+	}
+
+	return user, nil
+}
+
 // validate ensures that the user's name and email are valid and returns an
 // ErrInvalid if anything is wrong.
 func (user *User) validate() error {

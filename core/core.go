@@ -22,7 +22,9 @@ type Configuration struct {
 		Name     string `json:"name"`
 		Password string `json:"password"`
 	}
-	HashCost int `json:"bcryptCost"`
+	HashCost int    `json:"bcryptCost"`
+	Address  string `json:"address"`
+	Secret   string `json:"secret"`
 }
 
 var sqlDatabase *sql.DB

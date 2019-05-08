@@ -1,5 +1,5 @@
-# Node Directories (build tools)
-node_modules
+# Cache directories
+.sass-cache/
 
 # Editor Directories
 .idea/
@@ -10,3 +10,5 @@ config.json
 
 # Build files
 extensus
+public/css
+public/js

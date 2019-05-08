@@ -4,5 +4,7 @@
 		"password": "password",
 		"name": "database name"
 	},
-	"bcryptCost": 12
+	"bcryptCost": 12,
+	"address": "TCP network address to listen on (e.g. ':8080')",
+	"secret": "unique secret used to secure JSON Web Tokens"
 }

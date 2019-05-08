@@ -3,17 +3,24 @@ package main
 import (
 	"flag"
 	"fmt"
+	"runtime"
 
 	"os"
 
 	"github.com/octacian/extensus/core"
 	"github.com/octacian/extensus/core/commands"
+	"github.com/octacian/extensus/routes"
 	"github.com/octacian/migrate"
 	"github.com/octacian/shell"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	// Deferred tasks
+	defer os.Exit(0)        // finally, exit
+	defer core.CloseSQLDB() // second, close sql.DB
+	defer core.CloseDB()    // first, close sqlx.DB
+
 	log.SetOutput(os.Stdout)
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
@@ -34,10 +41,6 @@ func main() {
 	if flag.NArg() > 1 {
 		log.Panicf("got %d trailing command-line arguments expected 0 to 1: %s", flag.NArg(), os.Args)
 	}
-
-	// Defer closing database
-	defer core.CloseDB()
-	defer core.CloseSQLDB()
 
 	// if the no migrate flag is not true, automatically migrate the database
 	if !*flagNoMigrate {
@@ -60,6 +63,9 @@ func main() {
 		// Handle exitStatus
 		if exitStatus == shell.ExitAll {
 			fmt.Printf("Received exit code of %d, exiting...", exitStatus)
+			runtime.Goexit()
 		}
 	}
+
+	routes.Serve()
 }

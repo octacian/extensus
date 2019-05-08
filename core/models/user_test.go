@@ -17,14 +17,48 @@ func WithUser(t *testing.T, fn func(*User)) {
 	}
 }
 
-// TestNewUser ensures that authentication works properly.
-func TestNewUser(t *testing.T) {
+// TestUserAuth ensures that authentication works properly.
+func TestUserAuth(t *testing.T) {
 	WithUser(t, func(user *User) {
 		if err := user.Authenticate(testPassword); err != nil {
 			t.Error("User.Authenticate: got error:\n", err)
-		} else if err := user.Authenticate("wrong"); err == nil {
-			t.Error("User.Authenticate(\"wrong\"): expected error")
 		}
+		if err := user.Authenticate(testPassword + "_"); err == nil {
+			t.Errorf("User.Authenticate(\"%s\"): expected error with wrong password", testPassword+"_")
+		}
+
+		if err := user.Save(); err != nil {
+			t.Error("User.Save: got error:\n", err)
+		} else {
+			if got, err := AuthenticateUser(user.Email, testPassword); err != nil {
+				t.Error("AuthenticateUser: got error:\n", err)
+			} else if got.Email != user.Email {
+				t.Errorf("AuthenticateUser.Email: got '%s' expected '%s'", got.Email, user.Email)
+			}
+
+			checkErr := func(err error) {
+				if _, ok := err.(*ErrNoEntry); !ok {
+					t.Error("AuthenticateUser: expected error of type ErrNoEntry, got:\n", err)
+				}
+			}
+
+			if _, err := AuthenticateUser(user.Email, testPassword+"_"); err == nil {
+				t.Error("AuthenticateUser: expected error with wrong password")
+			} else {
+				checkErr(err)
+			}
+			if _, err := AuthenticateUser(user.Email+"_@", testPassword); err == nil {
+				t.Error("AuthenticateUser: expected error with bad email address")
+			} else {
+				checkErr(err)
+			}
+		}
+
+		if err := user.Delete(); err != nil {
+			t.Fatal("User.Delete: got error:\n", err)
+		}
+	})
+}
 
 // TestUserValidation ensures that fields are validated by NewUser, SetPassword
 // and Save.
