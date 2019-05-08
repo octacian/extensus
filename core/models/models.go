@@ -3,6 +3,8 @@ package models
 import (
 	"database/sql"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // ErrNoEntry is returned when a requested entry does not exist.
@@ -82,7 +84,7 @@ func (err *ErrInvalid) Error() string {
 // affected is different from what was expected.
 func ShouldAffect(name string, res sql.Result, expected int64) error {
 	if affected, err := res.RowsAffected(); err != nil {
-		panic(fmt.Sprintf("%s: got error while fetching affected row count:\n%s", name, err))
+		log.Panicf("%s: got error while fetching affected row count: %s", name, err)
 	} else if affected != 1 {
 		return &ErrBadEffect{Name: name, Affected: affected, Expected: expected}
 	}

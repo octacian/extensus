@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/octacian/migrate"
 	"github.com/octacian/shell"
+	log "github.com/sirupsen/logrus"
 )
 
 // Configuration stores a copy of the JSON config file within a native struct.
@@ -48,7 +49,7 @@ func GetSQLDB() *sql.DB {
 		name := config.Database.Name
 		res, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?parseTime=true", user, password, name))
 		if err != nil {
-			panic(fmt.Sprintf("GetSQLDB: got error while opening database:\n%s", err))
+			log.Panic("GetSQLDB: got error while opening database: ", err)
 		}
 		sqlDatabase = res
 	})
@@ -91,7 +92,7 @@ func GetMigrate() *migrate.Instance {
 	oneMigrateInstance.Do(func() {
 		result, err := migrate.NewInstance(GetSQLDB(), Abs("migrations"))
 		if err != nil {
-			panic(fmt.Sprintf("GetMigrate: got error while creating instance:\n%s", err))
+			log.Panic("GetMigrate: got error while creating instance: ", err)
 		}
 		migrateInstance = result
 	})
@@ -115,11 +116,11 @@ func GetConfig() *Configuration {
 	oneProgramConfig.Do(func() {
 		data, err := ioutil.ReadFile(Abs("config.json"))
 		if err != nil {
-			panic(fmt.Sprintf("GetConfig: got error while reading 'config.json':\n%s", err))
+			log.Panic("GetConfig: got error while reading 'config.json': ", err)
 		}
 
 		if err := json.Unmarshal(data, &programConfig); err != nil {
-			panic(fmt.Sprintf("GetConfig: got error while unmarshalling file contests:\n%s", err))
+			log.Panic("GetConfig: got error while unmarshalling file contests: ", err)
 		}
 	})
 

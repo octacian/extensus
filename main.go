@@ -4,13 +4,27 @@ import (
 	"flag"
 	"fmt"
 
+	"os"
+
 	"github.com/octacian/extensus/core"
 	"github.com/octacian/extensus/core/commands"
 	"github.com/octacian/migrate"
 	"github.com/octacian/shell"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+	if os.Getenv("MODE") != "DEV" {
+		// Only log the warning severity or above if not in development mode.
+		log.SetLevel(log.WarnLevel)
+	} else {
+		log.WithFields(log.Fields{"MODE": os.Getenv("MODE")}).Info("Development mode enabled")
+	}
+
 	// Prepare command-line flags
 	flagNoMigrate := flag.Bool("no-migrate", false, "do not apply new migrations")
 
@@ -18,7 +32,7 @@ func main() {
 
 	// Ensure there are not too many trailing arguments
 	if flag.NArg() > 1 {
-		panic(fmt.Sprintf("got %d trailing command-line arguments expected 0 to 1", flag.NArg()))
+		log.Panicf("got %d trailing command-line arguments expected 0 to 1: %s", flag.NArg(), os.Args)
 	}
 
 	// Defer closing database
@@ -31,9 +45,9 @@ func main() {
 		if err := instance.Latest(); err != nil {
 			switch err.(type) {
 			case *migrate.ErrNoMigrations:
-				fmt.Printf("Database on version %d with no migrations to apply.\n", instance.Version())
+				log.WithFields(log.Fields{"version": instance.Version()}).Info("No database migrations to apply")
 			default:
-				panic(fmt.Sprint("main: got error while migrating to latest:\n", err))
+				log.Panic("main: got error while migrating to latest:\n", err)
 			}
 		}
 	}
