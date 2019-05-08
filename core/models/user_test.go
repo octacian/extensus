@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/octacian/extensus/core"
 	"testing"
+
+	"github.com/octacian/extensus/core"
 )
 
 var testPassword = "!test?9@_*"
@@ -24,6 +25,32 @@ func TestNewUser(t *testing.T) {
 		} else if err := user.Authenticate("wrong"); err == nil {
 			t.Error("User.Authenticate(\"wrong\"): expected error")
 		}
+
+// TestUserValidation ensures that fields are validated by NewUser, SetPassword
+// and Save.
+func TestValidation(t *testing.T) {
+	expectInvalid := func(name, which string, err error) {
+		if err == nil {
+			t.Errorf("%s: expected error with invalid %s", name, which)
+		} else if err, ok := err.(*ErrInvalid); !ok {
+			t.Errorf("%s: expected error of type ErrInvalid with invalid user %s", name, which)
+		} else if err.Model != "user" {
+			t.Errorf("%s: expected error Model field to be 'user' got '%s'", name, err.Model)
+		} else if err.Which != which {
+			t.Errorf("%s: expected error Which field to be '%s' got '%s'", name, which, err.Which)
+		}
+	}
+
+	_, err := NewUser("", "test@test.test", testPassword)
+	expectInvalid("NewUser", "name", err)
+
+	WithUser(t, func(user *User) {
+		user.Email = "test"
+		err := user.Save()
+		expectInvalid("User.Save", "email", err)
+
+		err = user.SetPassword("bad")
+		expectInvalid("User.SetPassword", "password", err)
 	})
 }
 

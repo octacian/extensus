@@ -2,10 +2,25 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"regexp"
+	"time"
+
+	"github.com/jmoiron/sqlx"
 	"github.com/octacian/extensus/core"
 	"golang.org/x/crypto/bcrypt"
-	"time"
+)
+
+var (
+	// ValidUserName is regex to check if a user's name is valid.
+	ValidUserName = regexp.MustCompile("^(?:[a-zA-Z,.'-]+ ?)+$")
+
+	// ValidUserEmail is regex to check if a user's email is valid.
+	ValidUserEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+	// ValidUserPassword is regex to check if a user's password is valid.
+	ValidUserPassword = regexp.MustCompile("^.{8,}$")
 )
 
 // User identifies an account.
@@ -20,13 +35,18 @@ type User struct {
 }
 
 // NewUser takes a name, email, and plaintext password and returns a new User.
-// If an error occurs while hashing the password, it is returned.
+// If an error occurs while hashing the password, it is returned. If validation
+// of the provided fields fails, an ErrInvalid is returned.
 func NewUser(name, email, password string) (*User, error) {
 	user := &User{
 		Created:  core.Time(),
 		Modified: core.Time(),
 		Name:     name,
 		Email:    email,
+	}
+
+	if err := user.validate(); err != nil {
+		return nil, err
 	}
 
 	if err := user.SetPassword(password); err != nil {
@@ -63,10 +83,29 @@ func GetUser(email string) (*User, error) {
 	return user, nil
 }
 
+// validate ensures that the user's name and email are valid and returns an
+// ErrInvalid if anything is wrong.
+func (user *User) validate() error {
+	if !ValidUserName.MatchString(user.Name) {
+		return &ErrInvalid{Model: "user", Which: "name", Value: user.Name}
+	}
+
+	if !ValidUserEmail.MatchString(user.Email) {
+		return &ErrInvalid{Model: "user", Which: "email", Value: user.Email}
+	}
+
+	return nil
+}
+
 // Save propagates any changes back to the database. If the ID field is 0, a
 // new entry is created. Otherwise, Save attempts to update an existing entry.
-// If anything goes wrong an error is returned.
+// If anything goes wrong an error is returned. If the user's name or email is
+// invalid, an ErrInvalid is returned.
 func (user *User) Save() error {
+	if err := user.validate(); err != nil {
+		return err
+	}
+
 	if user.ID == 0 {
 		res, err := core.GetDB().Exec("INSERT INTO user (Created, Modified, Name, Email, Password) VALUES (?, ?, ?, ?, ?)",
 			user.Created, user.Modified, user.Name, user.Email, user.Password)
@@ -105,9 +144,14 @@ func (user *User) Delete() error {
 }
 
 // SetPassword takes a plaintext password and hashes it before storing it in
-// the password field. If an error occurs while hashing the password, it is
-// returned.
+// the password field. If the plaintext password does not meet the requirements
+// an ErrInvalid is returned. If an error occurs while hashing the password, it
+// is returned.
 func (user *User) SetPassword(password string) error {
+	if !ValidUserPassword.MatchString(password) {
+		return &ErrInvalid{Model: "user", Which: "password", Value: string(user.Password)}
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), core.GetConfig().HashCost)
 	if err != nil {
 		return err
