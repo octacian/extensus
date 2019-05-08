@@ -68,14 +68,24 @@ func ListUser() ([]User, error) {
 	return users, err
 }
 
-// GetUser fetches a User from the database by email. If no such user exists
-// an error is returned.
-func GetUser(email string) (*User, error) {
+// GetUser fetches a User from the database by email or by ID. If no such user
+// exists or something other than a string or integer is passed to GetUser, an
+// error is returned.
+func GetUser(emailOrID interface{}) (*User, error) {
+	var row *sqlx.Row
 	user := &User{}
-	row := core.GetDB().QueryRowx("SELECT * FROM user WHERE Email=?", email)
+
+	switch emailOrID.(type) {
+	case string:
+		row = core.GetDB().QueryRowx("SELECT * FROM user WHERE Email=?", emailOrID.(string))
+	case int:
+		row = core.GetDB().QueryRowx("SELECT * FROM user WHERE ID = ?", emailOrID.(int))
+	default:
+		return nil, errors.New("Expected emailOrID argument to be of type string or int")
+	}
 
 	if err := row.StructScan(user); err == sql.ErrNoRows {
-		return nil, &ErrNoEntry{Type: "user", Identifier: email}
+		return nil, &ErrNoEntry{Type: "user", Identifier: emailOrID}
 	} else if err != nil {
 		return nil, err
 	}

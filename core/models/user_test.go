@@ -123,6 +123,16 @@ func TestUserCRUD(t *testing.T) {
 			t.Errorf("GetUser.Modified: got %s expected %s", got.Modified, user.Modified)
 		}
 
+		if got, err := GetUser(int(user.ID)); err != nil {
+			t.Errorf("GetUser(\"%d\"): got error:\n%s", user.ID, err)
+		} else if got.Name != user.Name {
+			t.Errorf("GetUser.Name: got '%s' expected '%s'", got.Name, user.Name)
+		}
+
+		if _, err := GetUser(0.1); err == nil {
+			t.Error("GetUser: expected error with invalid user identifier")
+		}
+
 		if err := user.Delete(); err != nil {
 			t.Error("User.Delete: got error:\n", err)
 		}
