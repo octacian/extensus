@@ -1,18 +1,20 @@
 {{template "base/head" .}}
 
-<h2>Forgot Password</h2>
-{{if and .Email .Valid}}
-<div class="form-success">
-	Your request has been sent to an administrator.
-</div>
-{{end}}
-
-<form id="forgot" method="POST" action="/forgot">
-	<div class="form-control">
-		<input type="email" id="email" name="email" placeholder="Email" value="{{.Email}}" required>
-		<div class="form-error">Invalid email address</div>
+<div class="center-center">
+	<h2>Forgot Password</h2>
+	{{if and .Email .Valid}}
+	<div class="form-success">
+		Your request has been sent to an administrator.
 	</div>
-	<div class="form-control"><button type="submit">Submit</button></div>
-</form>
+	{{end}}
+
+	<form id="forgot" method="POST" action="/forgot">
+		<div class="form-control">
+			<input type="email" id="email" name="email" placeholder="Email" value="{{.Email}}" required>
+			<div class="form-error">Invalid email address</div>
+		</div>
+		<div class="form-control"><button type="submit">Submit</button></div>
+	</form>
+</div>
 
 {{template "base/footer"}}

@@ -1,22 +1,24 @@
 {{template "base/head" .}}
 
-{{if .Failed}}
-<div class="form-failure">
-	Invalid email and password combination.
-</div>
-{{end}}
+<div class="center-center">
+	{{if .Failed}}
+	<div class="form-failure">
+		Invalid email and password combination.
+	</div>
+	{{end}}
 
-{{if .Return}}
-<div class="form-failure">
-	You must log in to continue.
-</div>
-{{end}}
+	{{if .Return}}
+	<div class="form-failure">
+		You must log in to continue.
+	</div>
+	{{end}}
 
-<form id="login" method="POST" action="/{{.Query}}">
-	<div class="form-control"><input type="email" name="email" placeholder="Email" value="{{.Email}}" required></div>
-	<div class="form-control"><input type="password" name="password" placeholder="Password" required></div>
-	<div class="form-control"><button type="submit">Log In</button></div>
-</form>
-<a href="/forgot">Forgot Password?</a>
+	<form id="login" method="POST" action="/{{.Query}}">
+		<div class="form-control"><input type="email" name="email" placeholder="Email" value="{{.Email}}" required></div>
+		<div class="form-control"><input type="password" name="password" placeholder="Password" required></div>
+		<div class="form-control"><button type="submit">Log In</button></div>
+	</form>
+	<a href="/forgot">Forgot Password?</a>
+</div>
 
 {{template "base/footer"}}

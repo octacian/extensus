@@ -1,15 +1,23 @@
 @import "./variables";
 
+@import "./interface";
+@import "./table";
+@import "./overlay";
+
 $text-color: rgb(46, 46, 46);
 
 body {
 	font-family: 'Roboto', sans-serif;
+	margin: 0px;
+}
+
+.center-center {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	text-align: center;
 	height: 100vh;
-	margin: 0px;
 }
 
 h2 {
@@ -53,17 +61,20 @@ form {
 				visibility: visible;
 			}
 		}
-
-		button {
-			cursor: pointer;
-			background-color: rgb(50, 85, 243);
-			color: white;
-			font-weight: bold;
-			border: 0px;
-			padding: 0.5rem 2.5rem;
-			margin: 0px auto 0px auto;
-		}
 	}
+}
+
+button, .button {
+	cursor: pointer;
+	background-color: rgb(50, 85, 243);
+	text-decoration: none;
+	color: white;
+	font-weight: bold;
+	font-size: 0.8rem;
+	font-family: "Arial";
+	border: 0px;
+	padding: 0.5rem 2.5rem;
+	margin: 0px auto 0px auto;
 }
 
 .form-success, .form-failure {
@@ -86,4 +97,8 @@ form {
 a {
 	color: #4E4E4E;
 	font-size: 0.85rem;
+}
+
+input[type="checkbox"].toggle {
+	display: none;
 }
