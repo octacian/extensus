@@ -6,22 +6,23 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/octacian/extensus/core"
-	"github.com/octacian/extensus/core/models"
+	"github.com/octacian/extensus/master/core"
+	"github.com/octacian/extensus/master/models"
+	"github.com/octacian/extensus/master/template"
 )
 
 const (
-	tmplLoginName  TmplName  = "login"  // path to login template
-	tmplLoginTitle TmplTitle = "Log In" // title of login page
+	tmplLoginName  template.Name  = "login"  // path to login template
+	tmplLoginTitle template.Title = "Log In" // title of login page
 
-	tmplForgotName  TmplName  = "forgot"          // path to forgot password template
-	tmplForgotTitle TmplTitle = "Forgot Password" // title of forgot password page
+	tmplForgotName  template.Name  = "forgot"          // path to forgot password template
+	tmplForgotTitle template.Title = "Forgot Password" // title of forgot password page
 )
 
 // SignIn renders the sign in page.
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	returnAfter := r.URL.Query()["return"]
-	RenderTemplate(w, tmplLoginName, tmplLoginTitle, Data{"Return": returnAfter, "Query": "?" + r.URL.RawQuery})
+	template.Render(w, tmplLoginName, tmplLoginTitle, template.Data{"Return": returnAfter, "Query": "?" + r.URL.RawQuery})
 }
 
 // AuthenticationClaims holds JWT claims information.
@@ -37,7 +38,7 @@ func SignInPost(w http.ResponseWriter, r *http.Request) {
 
 	if user, err := models.AuthenticateUser(email, password); err != nil {
 		if models.IsErrNoEntry(err) {
-			RenderTemplate(w, tmplLoginName, tmplLoginTitle, Data{"Failed": true, "Email": email})
+			template.Render(w, tmplLoginName, tmplLoginTitle, template.Data{"Failed": true, "Email": email})
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -86,12 +87,12 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 // Forgot renders the forgot password page.
 func Forgot(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, tmplForgotName, tmplForgotTitle, nil)
+	template.Render(w, tmplForgotName, tmplForgotTitle, nil)
 }
 
 // ForgotPost handles forgot password requests.
 func ForgotPost(w http.ResponseWriter, r *http.Request) {
 	value := r.FormValue("email")
 	res := models.ValidUserEmail.MatchString(value)
-	RenderTemplate(w, tmplForgotName, tmplForgotTitle, Data{"Email": value, "Valid": res})
+	template.Render(w, tmplForgotName, tmplForgotTitle, template.Data{"Email": value, "Valid": res})
 }

@@ -1,4 +1,4 @@
-package core
+package shared
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func Abs(path string) string {
 
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
-		panic(fmt.Sprint("core.Abs: could not recover file path to core/abs.go"))
+		panic(fmt.Sprint("shared.Abs: could not recover file path to core/abs.go"))
 	}
 
 	return filepath.Join(filepath.Dir(file), "..", path)

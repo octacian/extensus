@@ -7,9 +7,9 @@ import (
 
 	"os"
 
-	"github.com/octacian/extensus/core"
-	"github.com/octacian/extensus/core/commands"
-	"github.com/octacian/extensus/routes"
+	"github.com/octacian/extensus/master/commands"
+	"github.com/octacian/extensus/master/core"
+	"github.com/octacian/extensus/master/routes"
 	"github.com/octacian/migrate"
 	"github.com/octacian/shell"
 	log "github.com/sirupsen/logrus"

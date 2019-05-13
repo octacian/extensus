@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/octacian/extensus/core"
+	"github.com/octacian/extensus/master/core"
+	"github.com/octacian/extensus/shared"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -39,8 +40,8 @@ type User struct {
 // of the provided fields fails, an ErrInvalid is returned.
 func NewUser(name, email, password string) (*User, error) {
 	user := &User{
-		Created:  core.Time(),
-		Modified: core.Time(),
+		Created:  shared.Time(),
+		Modified: shared.Time(),
 		Name:     name,
 		Email:    email,
 	}
@@ -144,7 +145,7 @@ func (user *User) Save() error {
 			user.ID = uint64(insertID)
 		}
 	} else {
-		user.Modified = core.Time()
+		user.Modified = shared.Time()
 		res, err := core.GetDB().Exec("UPDATE user SET Modified=?, Name=?, Email=?, Password=? WHERE Email=?",
 			user.Modified, user.Name, user.Email, user.Password, user.Email)
 		if err != nil {

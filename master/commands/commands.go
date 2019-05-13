@@ -11,8 +11,8 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"github.com/octacian/extensus/core"
-	"github.com/octacian/extensus/core/models"
+	"github.com/octacian/extensus/master/core"
+	"github.com/octacian/extensus/master/models"
 	"github.com/octacian/shell"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"

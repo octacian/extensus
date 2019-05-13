@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql" // Import MySQL database driver
 	"github.com/jmoiron/sqlx"
+	"github.com/octacian/extensus/shared"
 	"github.com/octacian/migrate"
 	"github.com/octacian/shell"
 	log "github.com/sirupsen/logrus"
@@ -92,7 +93,7 @@ func CloseDB() {
 // GetMigrate returns a migrate.Instance.
 func GetMigrate() *migrate.Instance {
 	oneMigrateInstance.Do(func() {
-		result, err := migrate.NewInstance(GetSQLDB(), Abs("migrations"))
+		result, err := migrate.NewInstance(GetSQLDB(), shared.Abs("migrations"))
 		if err != nil {
 			log.Panic("GetMigrate: got error while creating instance: ", err)
 		}
@@ -116,7 +117,7 @@ func GetShell() *shell.App {
 // are ignored.
 func GetConfig() *Configuration {
 	oneProgramConfig.Do(func() {
-		data, err := ioutil.ReadFile(Abs("config.json"))
+		data, err := ioutil.ReadFile(shared.Abs("config.json"))
 		if err != nil {
 			log.Panic("GetConfig: got error while reading 'config.json': ", err)
 		}

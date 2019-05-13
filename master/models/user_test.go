@@ -3,7 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/octacian/extensus/core"
+	"github.com/octacian/extensus/shared"
 )
 
 var testPassword = "!test?9@_*"
@@ -118,7 +118,7 @@ func TestListUser(t *testing.T) {
 // TestUserCRUD ensures that basic CRUD operations perform as expected.
 func TestUserCRUD(t *testing.T) {
 	WithUser(t, func(user *User) {
-		now := core.Time()
+		now := shared.Time()
 		created := user.Created
 		modified := user.Modified
 

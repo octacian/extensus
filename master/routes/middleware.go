@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/octacian/extensus/core"
+	"github.com/octacian/extensus/master/core"
 )
 
 // authorized returns true if the request is authorized. Any unhandled errors
