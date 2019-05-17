@@ -167,6 +167,14 @@ func TestUserCRUD(t *testing.T) {
 			t.Error("GetUser: expected error with invalid user identifier")
 		}
 
+		originalName := user.Name
+		user.Name = "Jane Doe"
+		if err := user.Refresh(int(user.ID)); err != nil {
+			t.Error("User.Refresh: got error:\n", err)
+		} else if user.Name != originalName {
+			t.Errorf("User.Refresh: got name '%s' expected '%s' after refresh", user.Name, originalName)
+		}
+
 		if err := user.Delete(); err != nil {
 			t.Error("User.Delete: got error:\n", err)
 		}

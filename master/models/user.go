@@ -169,6 +169,19 @@ func (user *User) Delete() error {
 	return ShouldAffect("User.Delete", res, 1)
 }
 
+// Refresh updates the user object to be equivalent to the corresponding
+// database entry. The provided identifier must be allowed by GetUser. If an
+// error occurs it is returned.
+func (user *User) Refresh(identifier interface{}) error {
+	fetched, err := GetUser(identifier)
+	if err != nil {
+		return err
+	}
+
+	*user = *fetched
+	return nil
+}
+
 // SetPassword takes a plaintext password and hashes it before storing it in
 // the password field. If the plaintext password does not meet the requirements
 // an ErrInvalid is returned. If an error occurs while hashing the password, it
