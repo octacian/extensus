@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"testing"
 
 	"github.com/octacian/extensus/shared"
@@ -15,6 +16,29 @@ func WithUser(t *testing.T, fn func(*User)) {
 	} else {
 		fn(user)
 	}
+}
+
+// TestUserContext ensures that a user value can be properly inserted into and
+// fetched from a Context using User.NewContext and UserFromContext.
+func TestUserContext(t *testing.T) {
+	WithUser(t, func(user *User) {
+		var parent context.Context
+		ctx := user.NewContext(parent)
+
+		if res := ctx.Value(userContextKey); res == nil {
+			t.Error("User.NewContext: failed to fetch user value from context")
+		} else if got, ok := res.(*User); !ok {
+			t.Error("User.NewContext > User: type assertion failed")
+		} else if got.Name != user.Name {
+			t.Errorf("User.NewContext > User.Name: got '%s' expected '%s'", got.Name, user.Name)
+		}
+
+		if got, ok := UserFromContext(ctx); !ok {
+			t.Error("UserFromContext: failed to fetch user from context")
+		} else if got.Name != user.Name {
+			t.Errorf("UserFromContext.Name: got '%s' expected '%s'", got.Name, user.Name)
+		}
+	})
 }
 
 // TestUserAuth ensures that authentication works properly.

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -23,6 +24,10 @@ var (
 	// ValidUserPassword is regex to check if a user's password is valid.
 	ValidUserPassword = regexp.MustCompile("^.{8,}$")
 )
+
+// userContextKey is the key for User values in Contexts. Clients must use
+// User.NewContext and models.UserFromContext.
+var userContextKey contextKey
 
 // User identifies an account.
 type User struct {
@@ -107,6 +112,17 @@ func AuthenticateUser(email, password string) (*User, error) {
 	}
 
 	return user, nil
+}
+
+// UserFromContext returns the User value stored in a context, if any.
+func UserFromContext(ctx context.Context) (*User, bool) {
+	user, ok := ctx.Value(userContextKey).(*User)
+	return user, ok
+}
+
+// NewContext returns a new context.Context that carries this user instance.
+func (user *User) NewContext(parent context.Context) context.Context {
+	return context.WithValue(parent, userContextKey, user)
 }
 
 // validate ensures that the user's name and email are valid and returns an

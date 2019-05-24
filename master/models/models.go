@@ -7,6 +7,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// contextKey is an unexported type for keys defined in this package for use
+// with contexts.
+type contextKey int
+
 // ErrNoEntry is returned when a requested entry does not exist.
 type ErrNoEntry struct {
 	Type       string      // the type of the entry

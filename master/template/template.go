@@ -3,6 +3,7 @@ package template
 import (
 	"html/template"
 
+	"github.com/octacian/extensus/master/models"
 	"github.com/octacian/extensus/shared"
 
 	"io/ioutil"
@@ -84,12 +85,16 @@ func ParseAll() {
 }
 
 // Render renders a template given its name and an arbitrary title.
-func Render(w http.ResponseWriter, tmpl Name, title Title, data Data) {
+func Render(w http.ResponseWriter, r *http.Request, tmpl Name, title Title, data Data) {
 	if data == nil {
 		data = Data{}
 	}
 
 	data["Title"] = title
+
+	if user, ok := models.UserFromContext(r.Context()); ok {
+		data["User"] = user
+	}
 
 	if err := templates.ExecuteTemplate(w, string(tmpl), data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

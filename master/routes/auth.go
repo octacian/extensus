@@ -22,7 +22,7 @@ const (
 // SignIn renders the sign in page.
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	returnAfter := r.URL.Query()["return"]
-	template.Render(w, tmplLoginName, tmplLoginTitle, template.Data{"Return": returnAfter, "Query": "?" + r.URL.RawQuery})
+	template.Render(w, r, tmplLoginName, tmplLoginTitle, template.Data{"Return": returnAfter, "Query": "?" + r.URL.RawQuery})
 }
 
 // AuthenticationClaims holds JWT claims information.
@@ -38,7 +38,7 @@ func SignInPost(w http.ResponseWriter, r *http.Request) {
 
 	if user, err := models.AuthenticateUser(email, password); err != nil {
 		if models.IsErrNoEntry(err) {
-			template.Render(w, tmplLoginName, tmplLoginTitle, template.Data{"Failed": true, "Email": email})
+			template.Render(w, r, tmplLoginName, tmplLoginTitle, template.Data{"Failed": true, "Email": email})
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -87,12 +87,12 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 // Forgot renders the forgot password page.
 func Forgot(w http.ResponseWriter, r *http.Request) {
-	template.Render(w, tmplForgotName, tmplForgotTitle, nil)
+	template.Render(w, r, tmplForgotName, tmplForgotTitle, nil)
 }
 
 // ForgotPost handles forgot password requests.
 func ForgotPost(w http.ResponseWriter, r *http.Request) {
 	value := r.FormValue("email")
 	res := models.ValidUserEmail.MatchString(value)
-	template.Render(w, tmplForgotName, tmplForgotTitle, template.Data{"Email": value, "Valid": res})
+	template.Render(w, r, tmplForgotName, tmplForgotTitle, template.Data{"Email": value, "Valid": res})
 }
